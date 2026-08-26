@@ -1,0 +1,10 @@
+# PYTHON BACKEND API
+
+-User Authentication
+-SQlite database
+-Free Deployment on Render
+-Products adding and viewing
+
+## whats inside 
+
+# how to run locally and git clone
