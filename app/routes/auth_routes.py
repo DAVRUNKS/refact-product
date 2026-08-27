@@ -1,46 +1,46 @@
-import os
-import jwt
-
+from flask import request
+from app.utils.responses import success_response
+from app.utils.errors import APIError
+from app.services.auth_service import login_user
 from flask import Blueprint, jsonify, request
-from werkzeug.security import check_password_hash
 from app.services.auth_service import register_user
 from app.utils.validators import validate_registration
 from app.utils.errors import APIError
-from app.database.connection import get_db_connection
+
 
 
 auth_bp = Blueprint("auth", __name__)
 
-def login_user(username, password):
+@auth_bp.route("/login", methods=["POST"])
+def login():
 
-    conn = get_db_connection()
+    data = request.get_json()
 
-    user = conn.execute(
-        """
-        SELECT * FROM users
-        WHERE username = %s
-        """,
-        (username,)
-    ).fetchone()
+    if not data:
+        raise APIError("JSON data required", 400)
 
-    conn.close()
+    username = data.get("username")
+    password = data.get("password")
 
-    if user is None:
-        return None
+    if not username or not password:
+        raise APIError(
+            "Username and password are required",
+            400
+        )
 
-    if not check_password_hash(user["password"], password):
-        return None
+    token = login_user(username, password)
 
-    token = jwt.encode(
-        {
-            "user_id": user["id"],
-            "username": user["username"]
-        },
-        os.getenv("JWT_SECRET"),
-        algorithm="HS256"
+    if token is None:
+        raise APIError(
+            "Invalid username or password",
+            401
+        )
+
+    return success_response(
+        "Login successful",
+        {"token": token},
+        200
     )
-    
-    return token
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
