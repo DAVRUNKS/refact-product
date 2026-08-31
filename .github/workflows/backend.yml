@@ -1,3 +1,4 @@
+```yaml
 name: Backend CI
 
 on:
@@ -12,6 +13,28 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: products_test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d products_test_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: products_test_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
 
     steps:
       - name: Checkout code
@@ -29,4 +52,4 @@ jobs:
 
       - name: Run tests
         run: pytest
-
+```
