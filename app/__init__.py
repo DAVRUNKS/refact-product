@@ -20,6 +20,7 @@ def create_app():
                 "http://127.0.0.1:5500",
                 "http://localhost:5500",
                 "http://localhost:5173"
+                "https://product-frontend-psi-five.vercel.app"
             ]
         }
     })
