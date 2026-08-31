@@ -1,4 +1,34 @@
+import pytest
+import jwt
+
+from app import create_app
+
+@pytest.fixture
+def client():
+    app = create_app()
+    app.config["TESTING"] = True
+
+
+    with app.test_client() as client:
+        yield client
+
+
+@pytest.fixture
+def auth_headers():
+    token = jwt.encode(
+    {"user_id": 1, "username": "testuser"},
+    "test-secret",
+    algorithm="HS256"
+    )
+
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }
+
+
 def test_register_user(client):
+
 
     response = client.post(
         "/register",
@@ -14,8 +44,8 @@ def test_register_user(client):
 
     assert data["message"] == "User registered successfully"
     
-def test_register_without_username(client):
 
+def test_register_without_username(client):
     response = client.post(
         "/register",
         json={
@@ -28,9 +58,8 @@ def test_register_without_username(client):
     data = response.get_json()
 
     assert data["error"] == "Username is required"
-    
-def test_register_with_short_password(client):
 
+def test_register_with_short_password(client):
     response = client.post(
         "/register",
         json={
@@ -44,9 +73,8 @@ def test_register_with_short_password(client):
     data = response.get_json()
 
     assert data["error"] == "Password must be at least 6 characters"
-    
-def test_register_duplicate_user(client):
 
+def test_register_duplicate_user(client):    
     client.post(
         "/register",
         json={
@@ -69,17 +97,15 @@ def test_register_duplicate_user(client):
 
     assert data["error"] == "Username already exists"
     
-def test_get_product_by_id(client):
 
+def test_get_product_by_id(client, auth_headers):
     response = client.post(
         "/products",
         json={
             "name": "Laptop",
             "price": 1500
         },
-        headers={
-            "Authorization": "Bearer testtoken"
-        }
+        headers=auth_headers
     )
 
     assert response.status_code == 201
@@ -97,9 +123,9 @@ def test_get_product_by_id(client):
     assert data["id"] == product_id
     assert data["name"] == "Laptop"
     assert data["price"] == 1500
-    
-def test_get_product_not_found(client):
 
+
+def test_get_product_not_found(client):
     response = client.get(
         "/products/99999"
     )
@@ -110,17 +136,15 @@ def test_get_product_not_found(client):
 
     assert data["error"] == "Product not found"
 
-def test_update_product(client):
 
+def test_update_product(client, auth_headers):
     response = client.post(
         "/products",
         json={
             "name": "Laptop",
             "price": 1500
         },
-        headers={
-            "Authorization": "Bearer testtoken"
-        }
+        headers=auth_headers
     )
 
     assert response.status_code == 201
@@ -133,9 +157,7 @@ def test_update_product(client):
             "name": "Gaming Laptop",
             "price": 2000
         },
-        headers={
-            "Authorization": "Bearer testtoken"
-        }
+        headers=auth_headers
     )
 
     assert response.status_code == 200
@@ -145,18 +167,15 @@ def test_update_product(client):
     assert data["id"] == product_id
     assert data["name"] == "Gaming Laptop"
     assert data["price"] == 2000
-    
-def test_delete_product(client):
 
+def test_delete_product(client, auth_headers):
     response = client.post(
         "/products",
         json={
             "name": "Laptop",
             "price": 1500
         },
-        headers={
-            "Authorization": "Bearer testtoken"
-        }
+        headers=auth_headers
     )
 
     assert response.status_code == 201
@@ -165,9 +184,7 @@ def test_delete_product(client):
 
     response = client.delete(
         f"/products/{product_id}",
-        headers={
-            "Authorization": "Bearer testtoken"
-        }
+        headers=auth_headers
     )
 
     assert response.status_code == 200
@@ -175,14 +192,11 @@ def test_delete_product(client):
     data = response.get_json()
 
     assert data["message"] == "Product deleted successfully"
-    
-def test_delete_product_not_found(client):
 
+def test_delete_product_not_found(client, auth_headers):
     response = client.delete(
         "/products/99999",
-        headers={
-            "Authorization": "Bearer testtoken"
-        }
+        headers=auth_headers
     )
 
     assert response.status_code == 404

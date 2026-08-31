@@ -1,8 +1,9 @@
 import os
-
+import jwt
 import psycopg
 import pytest
 
+JWT_SECRET = os.getenv("JWT_SECRET")
 
 os.environ["DB_HOST"] = "localhost"
 os.environ["DB_PORT"] = "5432"
@@ -10,8 +11,20 @@ os.environ["DB_NAME"] = "products_test_db"
 os.environ["DB_USER"] = "postgres"
 os.environ["DB_PASSWORD"] = "postgres"
 os.environ["API_TOKEN"] = "testtoken"
+os.environ["JWT_SECRET"] = "test-secret"
 
+@pytest.fixture
+def auth_headers():
+    token = jwt.encode(
+        {"user_id": 1, "username": "testuser"},
+        os.getenv("JWT_SECRET"),
+        algorithm="HS256"
+    )
 
+    return {
+        "Authorization": f"Bearer {token}"
+    }
+    
 @pytest.fixture(autouse=True)
 def setup_test_database():
 

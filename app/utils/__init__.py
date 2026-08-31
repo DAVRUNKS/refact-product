@@ -1,7 +1,14 @@
-import os
 from functools import wraps
+import os
 
-from flask import jsonify, request
+import jwt
+from dotenv import load_dotenv
+from flask import request
+
+from app.utils.responses import error_response
+
+
+load_dotenv()
 
 
 def require_token(f):
@@ -9,21 +16,43 @@ def require_token(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
 
-        token = request.headers.get("Authorization")
+        auth_header = request.headers.get("Authorization")
 
-        if not token:
-            return jsonify({
-                "error": "Authorization token required"
-            }), 401
+        if not auth_header:
+            return error_response(
+                "Authorization token required",
+                401
+            )
 
-        api_token = os.getenv("API_TOKEN")
+        if not auth_header.startswith("Bearer "):
+            return error_response(
+                "Invalid authorization format",
+                401
+            )
 
-        if token != f"Bearer {api_token}":
-            return jsonify({
-                "error": "Invalid token"
-            }), 403
+        token = auth_header.split(" ", 1)[1]
+
+        try:
+            payload = jwt.decode(
+                token,
+                os.getenv("JWT_SECRET"),
+                algorithms=["HS256"]
+            )
+
+            request.user = payload
+
+        except jwt.ExpiredSignatureError:
+            return error_response(
+                "Token has expired",
+                401
+            )
+
+        except jwt.InvalidTokenError:
+            return error_response(
+                "Invalid token",
+                403
+            )
 
         return f(*args, **kwargs)
 
     return decorated_function
-
