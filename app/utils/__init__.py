@@ -4,9 +4,6 @@ from functools import wraps
 from flask import jsonify, request
 
 
-API_TOKEN = os.getenv("API_TOKEN")
-
-
 def require_token(f):
 
     @wraps(f)
@@ -19,7 +16,9 @@ def require_token(f):
                 "error": "Authorization token required"
             }), 401
 
-        if token != f"Bearer {API_TOKEN}":
+        api_token = os.getenv("API_TOKEN")
+
+        if token != f"Bearer {api_token}":
             return jsonify({
                 "error": "Invalid token"
             }), 403
@@ -27,3 +26,4 @@ def require_token(f):
         return f(*args, **kwargs)
 
     return decorated_function
+

@@ -1,22 +1,31 @@
 import os
-import sqlite3
 
+import psycopg
 import pytest
 
 
-TEST_DATABASE = "test_products.db"
-
-os.environ["DATABASE"] = TEST_DATABASE
+os.environ["DB_HOST"] = "localhost"
+os.environ["DB_PORT"] = "5432"
+os.environ["DB_NAME"] = "products_test_db"
+os.environ["DB_USER"] = "postgres"
+os.environ["DB_PASSWORD"] = "postgres"
+os.environ["API_TOKEN"] = "testtoken"
 
 
 @pytest.fixture(autouse=True)
 def setup_test_database():
 
-    conn = sqlite3.connect(TEST_DATABASE)
+    conn = psycopg.connect(
+        host="localhost",
+        port=5432,
+        dbname="products_test_db",
+        user="postgres",
+        password="postgres"
+    )
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             price REAL NOT NULL
         )
@@ -24,15 +33,12 @@ def setup_test_database():
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         )
     """)
 
-    conn.commit()
-
-    # Clear previous test data
     conn.execute("DELETE FROM products")
     conn.execute("DELETE FROM users")
 
@@ -41,8 +47,13 @@ def setup_test_database():
 
     yield
 
-    # Clean up after the test
-    conn = sqlite3.connect(TEST_DATABASE)
+    conn = psycopg.connect(
+        host="localhost",
+        port=5432,
+        dbname="products_test_db",
+        user="postgres",
+        password="postgres"
+    )
 
     conn.execute("DELETE FROM products")
     conn.execute("DELETE FROM users")
