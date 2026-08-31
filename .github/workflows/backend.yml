@@ -34,6 +34,7 @@ jobs:
       DB_NAME: products_test_db
       DB_USER: postgres
       DB_PASSWORD: postgres
+      API_TOKEN: testtoken
 
     steps:
       - name: Checkout code
