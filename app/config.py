@@ -47,7 +47,11 @@ class Config:
 
     @staticmethod
     def get_cors_origins():
-        return os.getenv(
-            "CORS_ORIGINS",
-            "http://localhost:5173"
-        ).split(",")
+        return [
+            origin.strip()
+            for origin in os.getenv(
+                "CORS_ORIGINS",
+                "http://localhost:5173"
+            ).split(",")
+            if origin.strip()
+    ]
