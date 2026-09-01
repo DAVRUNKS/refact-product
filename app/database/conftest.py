@@ -17,7 +17,10 @@ os.getenv("PORT")
 @pytest.fixture
 def auth_headers():
     token = jwt.encode(
-        {"user_id": 1, "username": "testuser"},
+        {
+            "user_id": 1,
+            "username": "testuser"
+        },
         os.getenv("JWT_SECRET"),
         algorithm="HS256"
     )

@@ -1,5 +1,6 @@
 import pytest
 import jwt
+import os
 
 from app import create_app
 
@@ -12,20 +13,20 @@ def client():
     with app.test_client() as client:
         yield client
 
-
 @pytest.fixture
 def auth_headers():
     token = jwt.encode(
-    {"user_id": 1, "username": "testuser"},
-    "test-secret",
-    algorithm="HS256"
+        {
+            "user_id": 1,
+            "username": "testuser"
+        },
+        os.getenv("JWT_SECRET"),
+        algorithm="HS256"
     )
-
 
     return {
         "Authorization": f"Bearer {token}"
     }
-
 
 def test_register_user(client):
 
