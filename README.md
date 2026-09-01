@@ -1,30 +1,137 @@
 # Refact Product API
 
-A Flask REST API for managing products and users, backed by PostgreSQL.
+A full-stack product management application built with **React, Flask, PostgreSQL, Docker, and JWT authentication**.
 
-## Live API
+The project demonstrates a production-style backend architecture with REST APIs, authentication, database integration, automated testing, containerization, and a React frontend.
 
-Base URL:
+## Features
 
-`https://refact-product-2.onrender.com`
+* User registration and login
+* JWT-based authentication
+* Product CRUD operations
+* PostgreSQL database
+* Flask REST API
+* React frontend
+* Docker and Docker Compose
+* CORS configuration
+* Automated tests with Pytest
+* Environment-based configuration
+* Git/GitHub version control
 
-## Authentication
+## Architecture
 
-Protected endpoints require an API token.
+```text
+React Frontend
+      │
+      │ HTTP / JSON
+      ▼
+Flask REST API
+      │
+      │ Psycopg
+      ▼
+PostgreSQL
+```
 
-Send the token using:
+The application can be run locally using Docker Compose:
 
-`Authorization: Bearer YOUR_API_TOKEN`
+```text
+React → Flask API → PostgreSQL
+```
+
+## Technology Stack
+
+### Backend
+
+* Python 3.13
+* Flask
+* PostgreSQL 17
+* Psycopg
+* PyJWT
+* Flask-CORS
+* Gunicorn
+
+### Frontend
+
+* React
+* Vite
+* JavaScript
+* React Router
+
+### Testing & DevOps
+
+* Pytest
+* Docker
+* Docker Compose
+* Git
+* GitHub
+
+## Running the Project Locally
+
+### Requirements
+
+Install:
+
+* Docker Desktop
+* Git
+* Node.js
+
+### 1. Clone the repository
+
+```bash
+git clone git@github.com:DAVRUNKS/refact-product.git
+cd refact-product
+```
+
+### 2. Start the backend
+
+```bash
+cd backend
+docker compose up -d
+```
+
+Check the containers:
+
+```bash
+docker compose ps
+```
+
+The backend API will be available at:
+
+```text
+http://localhost:5000
+```
+
+### 3. Start the frontend
+
+Open another terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The React application will be available at:
+
+```text
+http://localhost:5173
+```
+
+## API Endpoints
 
 ### Public Endpoints
 
-| Method | Endpoint         | Description      |
-| ------ | ---------------- | ---------------- |
-| GET    | `/products`      | Get all products |
-| GET    | `/products/<id>` | Get one product  |
-| POST   | `/register`      | Register a user  |
+| Method | Endpoint         | Description         |
+| ------ | ---------------- | ------------------- |
+| GET    | `/`              | API health check    |
+| GET    | `/products`      | Get all products    |
+| GET    | `/products/<id>` | Get one product     |
+| POST   | `/register`      | Register a user     |
+| POST   | `/login`         | Authenticate a user |
 
 ### Protected Endpoints
+
+The following endpoints require a valid JWT:
 
 | Method | Endpoint         | Description      |
 | ------ | ---------------- | ---------------- |
@@ -32,58 +139,63 @@ Send the token using:
 | PUT    | `/products/<id>` | Update a product |
 | DELETE | `/products/<id>` | Delete a product |
 
-## Products
+## Authentication
 
-### Get all products
+Authentication uses **JSON Web Tokens (JWT)**.
 
-`GET /products`
+After logging in successfully, the API returns a token.
 
-Example response:
+Protected requests use:
 
-```json
-[
-  {
-    "id": 1,
-    "name": "Laptop",
-    "price": 500.0
-  }
-]
+```text
+Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
-### Get one product
+The backend validates the token before allowing access to protected resources.
 
-`GET /products/1`
+> Never commit JWT secrets, passwords, or other credentials to Git.
 
-Example response:
+## Example API Requests
 
-```json
-{
-  "id": 1,
-  "name": "Laptop",
-  "price": 500.0
-}
+### Register a User
+
+```http
+POST /register
+Content-Type: application/json
 ```
-
-If the product does not exist:
 
 ```json
 {
-  "success": false,
-  "error": "Product not found"
+  "username": "testuser",
+  "password": "password123"
 }
 ```
 
-Status: `404`
+The password is securely hashed before being stored in PostgreSQL.
 
-### Create a product
+### Login
 
-`POST /products`
+```http
+POST /login
+Content-Type: application/json
+```
 
-Header:
+```json
+{
+  "username": "testuser",
+  "password": "password123"
+}
+```
 
-`Authorization: Bearer YOUR_API_TOKEN`
+The successful response contains a JWT that can be used for protected requests.
 
-Body:
+### Create a Product
+
+```http
+POST /products
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+```
 
 ```json
 {
@@ -92,7 +204,7 @@ Body:
 }
 ```
 
-Successful response:
+Example response:
 
 ```json
 {
@@ -103,115 +215,161 @@ Successful response:
 }
 ```
 
-Status: `201`
+## Database
 
-### Update a product
+The application uses **PostgreSQL 17**.
 
-`PUT /products/1`
+When running through Docker Compose:
 
-Header:
-
-`Authorization: Bearer YOUR_API_TOKEN`
-
-Body:
-
-```json
-{
-  "name": "Gaming Laptop",
-  "price": 750
-}
+```text
+PostgreSQL container
+      │
+      └── products_db
 ```
 
-Successful response:
+The database connection is configured using environment variables rather than hard-coded credentials.
 
-```json
-{
-  "message": "Product updated successfully",
-  "id": 1,
-  "name": "Gaming Laptop",
-  "price": 750.0
-}
+The `.env` file is excluded from Git.
+
+## Testing
+
+The backend contains automated tests using Pytest.
+
+Run the test suite inside the backend environment:
+
+```bash
+pytest
 ```
 
-Status: `200`
+Current test result:
 
-### Delete a product
-
-`DELETE /products/1`
-
-Header:
-
-`Authorization: Bearer YOUR_API_TOKEN`
-
-Successful response:
-
-```json
-{
-  "message": "Product deleted successfully"
-}
+```text
+19 passed
 ```
 
-Status: `200`
+The tests cover authentication, product services, API routes, and validation.
 
-## User Registration
+## Docker
 
-### Register
+The backend is containerized using Docker.
 
-`POST /register`
+Start the complete backend stack:
 
-Body:
-
-```json
-{
-  "username": "testuser",
-  "password": "password123"
-}
+```bash
+docker compose up -d
 ```
 
-The password is hashed before being stored in PostgreSQL.
+Stop it:
 
-## Authentication Errors
-
-### Missing token
-
-Status: `401`
-
-```json
-{
-  "error": "Authorization token required"
-}
+```bash
+docker compose down
 ```
 
-### Invalid token
+View running containers:
 
-Status: `403`
-
-```json
-{
-  "error": "Invalid token"
-}
+```bash
+docker compose ps
 ```
 
-## Error Status Codes
+View API logs:
 
-| Status | Meaning                 |
-| ------ | ----------------------- |
-| 200    | Request successful      |
-| 201    | Resource created        |
-| 400    | Invalid request         |
-| 401    | Authentication required |
-| 403    | Invalid authentication  |
-| 404    | Resource not found      |
+```bash
+docker compose logs api
+```
 
-## Technology Stack
+View PostgreSQL logs:
 
-* Python
-* Flask
-* PostgreSQL
-* Psycopg
-* Flask-CORS
-* Pytest
-* Gunicorn
-* Render
-* Git/GitHub
+```bash
+docker compose logs db
+```
+
+## Environment Variables
+
+The backend uses environment variables for configuration.
+
+Example:
+
+```env
+POSTGRES_DB=products_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=products_db
+DB_USER=postgres
+DB_PASSWORD=your_password
+
+JWT_SECRET=your_secret
+
+CORS_ORIGINS=http://localhost:5173
+```
+
+Do not commit the real `.env` file.
+
+## Project Structure
+
+```text
+refact-product/
+│
+├── backend/
+│   ├── app/
+│   │   ├── database/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── ...
+│   │
+│   ├── tests/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── requirements.txt
+│   └── run.py
+│
+└── frontend/
+    ├── src/
+    ├── public/
+    ├── package.json
+    └── vite.config.js
+```
+
+## Development Workflow
+
+The project follows a typical backend development workflow:
+
+```text
+Write Code
+    ↓
+Run Tests
+    ↓
+Run Docker Containers
+    ↓
+Test API
+    ↓
+Test React Frontend
+    ↓
+Commit Changes
+    ↓
+Push to GitHub
+```
+
+## Future Improvements
+
+Potential future improvements include:
+
+* API documentation with Swagger/OpenAPI
+* Refresh tokens
+* Role-based authorization
+* Pagination
+* Product search and filtering
+* Database migrations
+* CI/CD with GitHub Actions
+* Production deployment
+* Automated frontend tests
+* Improved error handling and logging
+
+## Author
+
+**DAVRUNKS**
+
+Built as a backend/full-stack portfolio project to demonstrate practical software engineering skills.
 
