@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-os.environ["API_TOKEN"] = "testtoken"
-os.environ["DB_HOST"] = "localhost"
+os.environ["DB_HOST"] = "db"
 os.environ["DB_PORT"] = "5432"
 os.environ["DB_NAME"] = "products_test_db"
 os.environ["DB_USER"] = "postgres"
+os.environ["DB_PASSWORD"] = "postgres"
 
 
 @pytest.fixture(autouse=True)
