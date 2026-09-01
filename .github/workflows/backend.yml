@@ -28,13 +28,13 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-env:
-  DB_HOST: localhost
-  DB_PORT: 5432
-  DB_NAME: products_test_db
-  DB_USER: postgres
-  DB_PASSWORD: postgres
-  JWT_SECRET: 4a2b9f3e8c7d6a5b1e0f9382716a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: products_test_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: 4a2b9f3e8c7d6a5b1e0f9382716a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a
 
     steps:
       - name: Checkout code
