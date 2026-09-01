@@ -1,8 +1,9 @@
 from functools import wraps
-from flask import request
-import os
-import jwt
 
+import jwt
+from flask import request
+
+from app.config import Config
 from app.utils.responses import error_response
 
 
@@ -30,7 +31,7 @@ def require_token(f):
         try:
             payload = jwt.decode(
                 token,
-                os.getenv("JWT_SECRET"),
+                Config.get_jwt_secret(),
                 algorithms=["HS256"]
             )
 
@@ -51,3 +52,4 @@ def require_token(f):
         return f(*args, **kwargs)
 
     return decorated_function
+

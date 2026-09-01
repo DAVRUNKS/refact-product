@@ -5,13 +5,14 @@ import pytest
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 
-os.environ["DB_HOST"] = "localhost"
-os.environ["DB_PORT"] = "5432"
-os.environ["DB_NAME"] = "products_test_db"
-os.environ["DB_USER"] = "postgres"
-os.environ["DB_PASSWORD"] = "postgres"
-os.environ["API_TOKEN"] = "testtoken"
-os.environ["JWT_SECRET"] = "test-secret"
+os.getenv("DB_HOST")
+os.getenv("DB_PORT")
+os.getenv("DB_NAME")
+os.getenv("DB_USER")
+os.getenv("DB_PASSWORD")
+os.getenv("JWT_SECRET")
+os.getenv("CORS_ORIGINS")
+os.getenv("PORT")
 
 @pytest.fixture
 def auth_headers():

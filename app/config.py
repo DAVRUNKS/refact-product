@@ -38,5 +38,16 @@ class Config:
         return os.getenv("API_TOKEN")
 
     @staticmethod
+    def get_jwt_secret():
+        return os.getenv("JWT_SECRET")
+
+    @staticmethod
     def get_port():
         return int(os.getenv("PORT", 5000))
+
+    @staticmethod
+    def get_cors_origins():
+        return os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:5173"
+        ).split(",")
